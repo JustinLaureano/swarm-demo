@@ -1,0 +1,40 @@
+services:
+    # Laravel Application (PHP-FPM)
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                user: laravel
+                uid: 1000
+        container_name: swarm-demo-app
+        restart: unless-stopped
+        volumes:
+            - '.:/var/www'
+        networks:
+            - swarm-demo
+
+    # Nginx Service
+    web:
+        build:
+            context: ./docker-compose/nginx
+            dockerfile: Dockerfile
+        container_name: swarm-demo-web
+        restart: unless-stopped
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - '.:/var/www'
+        networks:
+            - swarm-demo
+        depends_on:
+            - app
+
+networks:
+    swarm-demo:
+        driver: bridge
+
+volumes:
+    db-data:
+    redis-data:
