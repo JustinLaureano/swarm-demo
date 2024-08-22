@@ -1,81 +1,44 @@
 services:
     # Laravel Application (PHP-FPM)
     app:
-        image: your-laravel-app-image:latest
+        image: justinlaureano/swarm-demo-app:latest
+        command: sh -c "php-fpm"
         deploy:
             replicas: 3
-            update_config:
-                parallelism: 2
-                delay: 10s
             restart_policy:
-                condition: on-failure
+                condition: any
+                delay: 5s
+                max_attempts: 3
+                window: 15s
+        healthcheck:
+            test: [ "CMD", "nc", "-zv", "localhost", "9000" ]
+            interval: 30s
+            timeout: 5s
+            retries: 3
+            start_period: 40s
         environment:
-            - APP_ENV=production
-            - APP_KEY=your-app-key
+            # - APP_ENV=production
+            - APP_KEY=base64:avKE3p0wqZ9E1wqrWJwK/HIIILzoO+W8DoUxVniwimY=
             - APP_DEBUG=false
-            - APP_URL=http://your-domain.com
-            - DB_HOST=db
-            - DB_PORT=3306
-            - DB_DATABASE=your-database
-            - DB_USERNAME=your-username
-            - DB_PASSWORD=your-password
-            - REDIS_HOST=redis
-            - REDIS_PASSWORD=null
-            - REDIS_PORT=6379
-        volumes:
-            - ./src:/var/www/html
         networks:
             - app-network
 
     # Nginx Service
     web:
-        image: nginx:latest
+        image: justinlaureano/swarm-demo-web:latest
         deploy:
             replicas: 3
-            update_config:
-                parallelism: 2
-                delay: 10s
             restart_policy:
-                condition: on-failure
+                condition: any
+                delay: 10s
+                max_attempts: 50
+                window: 15s
         ports:
             - "80:80"
-            - "443:443"
-        volumes:
-            - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-            - ./src:/var/www/html
-            - /etc/letsencrypt:/etc/letsencrypt # For SSL certificates
         networks:
             - app-network
-
-    # MySQL Service
-    db:
-        image: mysql:8.0
-        deploy:
-            replicas: 1
-            restart_policy:
-                condition: on-failure
-        environment:
-            MYSQL_ROOT_PASSWORD: your-root-password
-            MYSQL_DATABASE: your-database
-            MYSQL_USER: your-username
-            MYSQL_PASSWORD: your-password
-        volumes:
-            - db-data:/var/lib/mysql
-        networks:
-            - app-network
-
-    # Redis Service
-    redis:
-        image: redis:7.0
-        deploy:
-            replicas: 1
-            restart_policy:
-                condition: on-failure
-        command: [ "redis-server", "--appendonly", "yes" ]
-        volumes:
-            - redis-data:/data
-        networks:
-            - app-network
+        depends_on:
+            - app
 
 networks:
     app-network:
