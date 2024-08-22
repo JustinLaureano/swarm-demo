@@ -4,46 +4,32 @@ services:
         image: justinlaureano/swarm-demo-app:latest
         command: sh -c "php-fpm"
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
-                condition: any
-                delay: 5s
-                max_attempts: 3
-                window: 15s
-        healthcheck:
-            test: [ "CMD", "nc", "-zv", "localhost", "9000" ]
-            interval: 30s
-            timeout: 5s
-            retries: 3
-            start_period: 40s
+                condition: on-failure
         environment:
-            # - APP_ENV=production
+            - APP_ENV=production
             - APP_KEY=base64:avKE3p0wqZ9E1wqrWJwK/HIIILzoO+W8DoUxVniwimY=
             - APP_DEBUG=false
         networks:
-            - app-network
+            - swarm-demo
 
     # Nginx Service
     web:
         image: justinlaureano/swarm-demo-web:latest
+        command: sh -c "/var/www/wait-for-it.sh app:9000 -t 120 && nginx -g \"daemon off;\""
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
-                condition: any
-                delay: 10s
-                max_attempts: 50
-                window: 15s
+                condition: on-failure
         ports:
             - "80:80"
         networks:
-            - app-network
+            - swarm-demo
         depends_on:
             - app
 
 networks:
-    app-network:
+    swarm-demo:
         driver: overlay
-
-volumes:
-    db-data:
-    redis-data:
+        attachable: true

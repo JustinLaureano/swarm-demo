@@ -19,11 +19,25 @@ services:
         build:
             context: ./docker-compose/nginx
             dockerfile: Dockerfile
+            target: dev
         container_name: swarm-demo-web
         restart: unless-stopped
         ports:
             - "80:80"
             - "443:443"
+        volumes:
+            - '.:/var/www'
+        networks:
+            - swarm-demo
+        depends_on:
+            - app
+
+    nginx:
+        image: nginx:latest
+        container_name: swarm-demo-nginx
+        restart: unless-stopped
+        ports:
+            - "8080:80"
         volumes:
             - '.:/var/www'
         networks:

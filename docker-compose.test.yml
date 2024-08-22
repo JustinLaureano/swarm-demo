@@ -1,0 +1,15 @@
+services:
+  app:
+    image: php:8.3-fpm
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:latest
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: overlay
+    attachable: true

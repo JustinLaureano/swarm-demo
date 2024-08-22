@@ -26,6 +26,39 @@ sa migrate
 
 sail npm install
 
+```
 
 
+## Builds
+
+Build app php-fpm server and push to repo
+
+```bash
+docker build --no-cache -t justinlaureano/swarm-demo-app:latest -f ./Dockerfile --build-arg user=laravel --build-arg uid=1000 .
+
+
+docker push justinlaureano/swarm-demo-app:latest
+```
+
+Build web server and push to repo
+
+```bash
+docker build --no-cache -t justinlaureano/swarm-demo-web:latest --target=prod -f ./docker-compose/nginx/Dockerfile .
+
+docker push justinlaureano/swarm-demo-web:latest
+```
+
+Copy over compe file to manager node
+
+```bash
+scp docker-compose.prod.yml user@1.2.3.4:/usr/src
+```
+
+
+run stack on manager node
+
+```bash
+export $(cat .env)
+
+docker stack deploy -c docker-compose.prod.yml demo
 ```
