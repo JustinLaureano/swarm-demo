@@ -48,6 +48,17 @@ docker build --no-cache -t justinlaureano/swarm-demo-web:latest --target=prod -f
 docker push justinlaureano/swarm-demo-web:latest
 ```
 
+
+Build mysql server and push to repo
+
+```bash
+docker build --no-cache -t justinlaureano/swarm-demo-mysql:latest -f ./docker-compose/mysql/Dockerfile .
+
+docker push justinlaureano/swarm-demo-mysql:latest
+```
+
+
+
 Copy over compe file to manager node
 
 ```bash
@@ -61,4 +72,25 @@ run stack on manager node
 export $(cat .env)
 
 docker stack deploy -c docker-compose.prod.yml demo
+```
+
+Other commands
+
+```bash
+docker stack ls
+
+docker service ls
+
+docker service ps demo_app
+docker service ps demo_web
+docker service ps demo_mysql
+
+docker service logs demo_app
+docker service logs demo_web
+docker service logs demo_mysql
+
+docker container ls
+docker exec -it demo_app.1.<ID> bash
+
+docker stack rm demo
 ```

@@ -29,7 +29,26 @@ services:
         depends_on:
             - app
 
+    mysql:
+        image: justinlaureano/swarm-demo-mysql:latest
+        deploy:
+            replicas: 2
+            restart_policy:
+                condition: on-failure
+        volumes:
+            - type: volume
+              source: mysqldata
+              target: /var/lib/mysql
+        ports:
+        - "3306:3306"
+        environment:
+        - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+
 networks:
     swarm-demo:
         driver: overlay
         attachable: true
+
+volumes:
+    mysqldata:
+    redisdata:
