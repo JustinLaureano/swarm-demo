@@ -63,6 +63,8 @@ Copy over compe file to manager node
 
 ```bash
 scp docker-compose.prod.yml user@1.2.3.4:/usr/src
+
+scp docker-compose.monitor.yml user@1.2.3.4:/usr/src
 ```
 
 
@@ -73,6 +75,16 @@ export $(cat .env)
 
 docker stack deploy -c docker-compose.prod.yml demo
 ```
+
+
+run monitoring stack on manager node
+
+```bash
+docker stack deploy -c docker-compose.monitor.yml monitor
+```
+
+view monitoring on port `8080` of manager server ip address
+
 
 Other commands
 

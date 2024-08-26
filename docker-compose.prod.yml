@@ -5,6 +5,9 @@ services:
         command: sh -c "php-fpm"
         deploy:
             replicas: 2
+            placement:
+                constraints:
+                    - "node.labels.db!=true"
             restart_policy:
                 condition: on-failure
         environment:
@@ -20,6 +23,9 @@ services:
         command: sh -c "/var/www/wait-for-it.sh app:9000 -t 120 && nginx -g \"daemon off;\""
         deploy:
             replicas: 2
+            placement:
+                constraints:
+                    - "node.labels.db!=true"
             restart_policy:
                 condition: on-failure
         ports:
@@ -33,16 +39,28 @@ services:
         image: justinlaureano/swarm-demo-mysql:latest
         deploy:
             replicas: 2
+            placement:
+                constraints:
+                    - "node.labels.db==true"
             restart_policy:
-                condition: on-failure
+                condition: any
         volumes:
             - type: volume
               source: mysqldata
               target: /var/lib/mysql
-        ports:
-        - "3306:3306"
         environment:
         - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+
+    redis:
+        image: redis:7.4.0-alpine
+        deploy:
+            placement:
+                constraints:
+                    - "node.labels.db==true"
+        volumes:
+            - type: volume
+              source: redisdata
+              target: /data
 
 networks:
     swarm-demo:
